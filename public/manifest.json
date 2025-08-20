@@ -1,0 +1,43 @@
+{
+  "name": "Mirolo - Deine intelligente Koch-App",
+  "short_name": "Mirolo",
+  "description": "Entdecke, erstelle und teile deine Lieblingsrezepte mit KI-Unterstützung",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fefdfb",
+  "theme_color": "#7a8471",
+  "orientation": "portrait-primary",
+  "categories": ["food", "lifestyle", "cooking"],
+  "lang": "de-DE",
+  "icons": [
+    {
+      "src": "/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icon-512x512.png", 
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Neues Rezept",
+      "url": "/rezept/neu",
+      "description": "Erstelle ein neues Rezept"
+    },
+    {
+      "name": "KI-Rezept",
+      "url": "/rezept/neu?ai=true", 
+      "description": "Lass dir ein Rezept von der KI erstellen"
+    },
+    {
+      "name": "Suchen",
+      "url": "/suche",
+      "description": "Suche nach Rezepten"
+    }
+  ]
+}
