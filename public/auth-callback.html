@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authentifizierung - Mirolo</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 400px;
+        }
+        .loading {
+            color: #666;
+            margin: 20px 0;
+        }
+        .error {
+            color: #d32f2f;
+            margin: 20px 0;
+        }
+        .success {
+            color: #2e7d32;
+            margin: 20px 0;
+        }
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #7a8471;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .btn {
+            background: #7a8471;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 20px;
+        }
+        .btn:hover {
+            background: #6a7461;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Authentifizierung</h1>
+        <div id="status" class="loading">
+            <div class="spinner"></div>
+            Anmeldung wird verarbeitet...
+        </div>
+        <div id="details" style="display: none;"></div>
+        <a href="/auth" class="btn" id="backBtn" style="display: none;">
+            Zurück zur Anmeldung
+        </a>
+    </div>
+
+    <script>
+        async function handleAuth() {
+            const statusEl = document.getElementById('status');
+            const detailsEl = document.getElementById('details');
+            const backBtn = document.getElementById('backBtn');
+
+            try {
+                // Get code from URL
+                const urlParams = new URLSearchParams(window.location.search);
+                const code = urlParams.get('code');
+
+                if (!code) {
+                    throw new Error('Kein Authentifizierungscode gefunden');
+                }
+
+                statusEl.innerHTML = '<div class="spinner"></div>Erstelle Session...';
+
+                // Create Supabase client
+                const supabaseUrl = 'https://dncyzszjcfofifmefsmf.supabase.co';
+                const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRuY3l6c3pqY2ZvZmlmbWVmc21mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU2Nzk2MTgsImV4cCI6MjA3MTI1NTYxOH0.G25p9fFYkuJxQNBfF8ibqwIW832gBQwxs2nyk8ldnkk';
+
+                // Exchange code for session
+                const response = await fetch(`${supabaseUrl}/auth/v1/token?grant_type=pkce`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'apikey': supabaseKey,
+                        'Authorization': `Bearer ${supabaseKey}`
+                    },
+                    body: JSON.stringify({
+                        auth_code: code
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error_description || 'Session-Erstellung fehlgeschlagen');
+                }
+
+                const sessionData = await response.json();
+
+                // Store tokens in localStorage
+                localStorage.setItem('supabase.auth.token', JSON.stringify({
+                    access_token: sessionData.access_token,
+                    refresh_token: sessionData.refresh_token,
+                    expires_at: Math.floor(Date.now() / 1000) + sessionData.expires_in,
+                    user: sessionData.user
+                }));
+
+                statusEl.innerHTML = '<div class="success">✅ Erfolgreich angemeldet!</div>';
+                detailsEl.innerHTML = '<p>Du wirst weitergeleitet...</p>';
+                detailsEl.style.display = 'block';
+
+                // Redirect to dashboard
+                setTimeout(() => {
+                    window.location.href = '/dashboard';
+                }, 2000);
+
+            } catch (error) {
+                console.error('Auth error:', error);
+                statusEl.innerHTML = `<div class="error">❌ Fehler: ${error.message}</div>`;
+                detailsEl.innerHTML = '<p>Bitte versuche es erneut oder kontaktiere den Support.</p>';
+                detailsEl.style.display = 'block';
+                backBtn.style.display = 'inline-block';
+            }
+        }
+
+        // Start authentication when page loads
+        document.addEventListener('DOMContentLoaded', handleAuth);
+    </script>
+</body>
+</html>

@@ -79,7 +79,7 @@ export const signInWithEmail = async (email: string) => {
   return await supabase.auth.signInWithOtp({
     email,
     options: {
-      emailRedirectTo: `${getBaseUrl()}/auth/callback`,
+      emailRedirectTo: `${getBaseUrl()}/auth-callback.html`,
     },
   })
 }
