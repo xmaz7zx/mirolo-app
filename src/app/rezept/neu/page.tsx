@@ -142,7 +142,10 @@ export default function NewRecipePage() {
       )}
 
       {mode === 'ai' && (
-        <AIRecipeGenerator onRecipeGenerated={handleRecipeGenerated} />
+        <AIRecipeWizard 
+          onRecipeGenerated={handleRecipeGenerated} 
+          onCancel={() => setMode('choose')}
+        />
       )}
 
       {mode === 'manual' && (
