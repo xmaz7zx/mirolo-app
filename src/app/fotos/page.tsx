@@ -100,7 +100,7 @@ export default function PhotosPage() {
     return matchesFilter && matchesSearch
   })
 
-  const getPhotoTypeLabel = (type: string) => {
+  const getPhotoTypeLabel = (type: string | null) => {
     switch (type) {
       case 'main': return 'Hauptfoto'
       case 'step': return 'Schritt'
