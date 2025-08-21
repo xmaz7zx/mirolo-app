@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/createClient()'
+import { createClient } from '@/lib/supabase'
 import { Recipe, RecipeInsert, RecipeUpdate, RecipeWithDetails, RecipeFilters } from '@/types'
 
 export class RecipeError extends Error {

@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/createClient()'
+import { createClient } from '@/lib/supabase'
 import type { PhotoType } from '@/types'
 
 export class PhotoError extends Error {
