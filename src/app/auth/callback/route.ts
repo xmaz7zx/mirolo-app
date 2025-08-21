@@ -1,18 +1,24 @@
-import { NextResponse, type NextRequest } from 'next/server'
+import { NextResponse } from 'next/server'
 
-export async function GET(request: NextRequest) {
+export async function GET(request: Request) {
   try {
-    const requestUrl = new URL(request.url)
-    const code = requestUrl.searchParams.get('code')
+    console.log('Callback hit with URL:', request.url)
+    
+    const url = new URL(request.url)
+    const code = url.searchParams.get('code')
+    
+    console.log('Code parameter:', code ? 'present' : 'missing')
     
     if (!code) {
-      return NextResponse.redirect(`${requestUrl.origin}/auth/error?message=No code provided`)
+      console.log('No code, redirecting to error')
+      return NextResponse.redirect(new URL('/auth/error?message=No code provided', url.origin))
     }
 
-    // Simple redirect to a client-side page that will handle the auth
-    return NextResponse.redirect(`${requestUrl.origin}/auth/confirm?code=${code}`)
-  } catch (error: any) {
-    console.error('Auth callback error:', error)
-    return NextResponse.redirect(`${request.url.split('?')[0].replace('/auth/callback', '/auth/error')}?message=Server error`)
+    console.log('Redirecting to confirm page with code')
+    return NextResponse.redirect(new URL(`/auth/confirm?code=${encodeURIComponent(code)}`, url.origin))
+    
+  } catch (error) {
+    console.error('Callback error:', error)
+    return new NextResponse('Internal Server Error', { status: 500 })
   }
 }
