@@ -73,7 +73,7 @@ export const useAuth = () => {
     const { data, error } = await createClient().auth.signInWithOtp({
       email,
       options: {
-        emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`,
+        emailRedirectTo: `https://mirolo-app.vercel.app/auth-callback.html`,
       },
     })
 
