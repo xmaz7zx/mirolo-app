@@ -179,7 +179,7 @@ export default function PerformanceMonitor() {
           <div className="text-red-400 font-bold">⚠ Violations:</div>
           {violations.map((violation, i) => (
             <div key={i} className={violation.severity === 'high' ? 'text-red-400' : 'text-yellow-400'}>
-              {violation.metric}: {Math.round(violation.value)} > {violation.budget}
+              {violation.metric}: {Math.round(violation.value)} &gt; {violation.budget}
             </div>
           ))}
         </div>
