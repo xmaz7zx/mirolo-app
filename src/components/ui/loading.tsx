@@ -28,10 +28,20 @@ export default function Loading({ size = 'md', text, className }: LoadingProps) 
   )
 }
 
-export function LoadingSpinner({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
+interface LoadingSpinnerProps extends React.HTMLAttributes<HTMLDivElement> {
+  size?: 'sm' | 'md' | 'lg'
+}
+
+export function LoadingSpinner({ size = 'md', className, ...props }: LoadingSpinnerProps) {
+  const sizes = {
+    sm: 'w-4 h-4',
+    md: 'w-6 h-6',
+    lg: 'w-8 h-8',
+  }
+
   return (
     <div
-      className={cn('w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin', className)}
+      className={cn('border-2 border-primary border-t-transparent rounded-full animate-spin', sizes[size], className)}
       {...props}
     />
   )
