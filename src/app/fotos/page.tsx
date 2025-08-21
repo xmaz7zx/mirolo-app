@@ -24,6 +24,7 @@ import type { RecipePhoto } from '@/types'
 
 interface PhotoWithRecipe extends RecipePhoto {
   recipe_title?: string
+  file_name?: string | null
 }
 
 export default function PhotosPage() {

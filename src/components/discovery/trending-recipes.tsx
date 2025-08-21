@@ -2,7 +2,7 @@
 
 import RecipeCard from '@/components/recipe/recipe-card'
 import { LoadingSpinner } from '@/components/ui/loading'
-import { TrendingUp, Fire } from 'lucide-react'
+import { TrendingUp, Flame } from 'lucide-react'
 import type { Recipe } from '@/types'
 
 interface TrendingRecipesProps {
@@ -82,7 +82,7 @@ export default function TrendingRecipes({
                     ? 'bg-orange-400 text-white'
                     : 'bg-orange-300 text-orange-900'
                 }`}>
-                  <Fire size={10} />
+                  <Flame size={10} />
                   #{index + 1} Trend
                 </div>
               </div>
@@ -99,7 +99,7 @@ export default function TrendingRecipes({
       {/* View All Trending */}
       <div className="text-center pt-2">
         <button className="text-orange-500 hover:text-orange-600 text-sm font-medium flex items-center gap-1 mx-auto">
-          <Fire size={14} />
+          <Flame size={14} />
           Alle Trend-Rezepte ansehen
         </button>
       </div>
