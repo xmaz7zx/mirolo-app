@@ -60,20 +60,9 @@ export const signInWithEmail = async (email: string) => {
   const { createClient } = await import('@/lib/supabase')
   const supabase = createClient()
   
-  // Get the correct base URL for redirects
+  // ALWAYS use production URL for Magic Links
   const getBaseUrl = () => {
-    // If NEXT_PUBLIC_APP_URL is set, use it
-    if (process.env.NEXT_PUBLIC_APP_URL) {
-      return process.env.NEXT_PUBLIC_APP_URL
-    }
-    
-    // Otherwise, use the current window location (client-side)
-    if (typeof window !== 'undefined') {
-      return window.location.origin
-    }
-    
-    // Fallback for server-side
-    return 'https://mirolo-63c8w6s76-xmaz7zxs-projects.vercel.app'
+    return 'https://mirolo-app.vercel.app'
   }
   
   return await supabase.auth.signInWithOtp({
