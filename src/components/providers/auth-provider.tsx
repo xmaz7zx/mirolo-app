@@ -1,7 +1,7 @@
 'use client'
 
 import { createContext, useContext, ReactNode } from 'react'
-import { useAuth, AuthUser } from '@/hooks/useAuth'
+import { useAuth, AuthUser } from '@/hooks/useAuth-new'
 
 interface AuthContextType {
   user: AuthUser | null
