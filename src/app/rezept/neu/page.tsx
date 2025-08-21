@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import MainLayout from '@/components/layout/main-layout'
-import AIRecipeGenerator from '@/components/recipe/ai-recipe-generator'
+import AIRecipeWizard from '@/components/recipe/ai-recipe-wizard'
 import RecipeForm from '@/components/recipe/recipe-form'
 import { Button } from '@/components/ui/button'
 import { Sparkles, Edit3, ArrowLeft } from 'lucide-react'
