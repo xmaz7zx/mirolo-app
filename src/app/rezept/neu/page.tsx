@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import MainLayout from '@/components/layout/main-layout'
 import AIRecipeWizard from '@/components/recipe/ai-recipe-wizard'
-import RecipeForm from '@/components/recipe/recipe-form'
+import MobileRecipeForm from '@/components/recipe/mobile-recipe-form'
 import { Button } from '@/components/ui/button'
 import { Sparkles, Edit3, ArrowLeft } from 'lucide-react'
 import type { GeneratedRecipe } from '@/lib/ai'
@@ -149,7 +149,10 @@ export default function NewRecipePage() {
       )}
 
       {mode === 'manual' && (
-        <RecipeForm onSave={handleRecipeSaved} />
+        <MobileRecipeForm 
+          onSave={handleRecipeSaved} 
+          onCancel={() => setMode('choose')}
+        />
       )}
 
       {mode === 'edit' && generatedRecipe && (
@@ -165,9 +168,10 @@ export default function NewRecipePage() {
             </p>
           </div>
 
-          <RecipeForm 
+          <MobileRecipeForm 
             initialRecipe={generatedRecipe}
             onSave={handleRecipeSaved}
+            onCancel={() => setMode('ai')}
           />
         </div>
       )}

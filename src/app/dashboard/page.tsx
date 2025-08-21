@@ -108,45 +108,47 @@ export default function DashboardPage() {
         </p>
       </div>
 
-      {/* Quick Actions */}
-      <div className="grid grid-cols-2 gap-4 mb-6">
+      {/* Quick Actions - Optimiert für Touch */}
+      <div className="space-y-4 mb-6">
         <Link href="/rezept/neu">
-          <Button className="w-full h-20 flex-col gap-2">
-            <Plus size={24} />
-            <span>Neues Rezept</span>
+          <Button className="w-full h-16 text-lg touch-manipulation">
+            <Plus size={24} className="mr-3" />
+            <span>Neues Rezept erstellen</span>
           </Button>
         </Link>
         
         <Link href="/rezept/neu?ai=true">
-          <Button variant="outline" className="w-full h-20 flex-col gap-2">
-            <div className="w-6 h-6 bg-primary rounded-full flex items-center justify-center">
-              <span className="text-primary-foreground text-xs font-bold">AI</span>
+          <Button variant="outline" className="w-full h-16 text-lg touch-manipulation">
+            <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center mr-3">
+              <span className="text-primary-foreground text-sm font-bold">KI</span>
             </div>
-            <span>KI-Rezept</span>
+            <span>Mit KI erstellen</span>
           </Button>
         </Link>
       </div>
 
-      {/* Recipe Stats */}
+      {/* Recipe Stats - Mobile optimiert */}
       {!isLoading && recipes && (
-        <div className="grid grid-cols-3 gap-4 mb-6">
-          <div className="text-center p-4 bg-card rounded-lg border">
-            <div className="text-2xl font-bold text-primary">
-              {recipeCounts.mine}
+        <div className="bg-card border border-border rounded-xl p-6 mb-6">
+          <div className="grid grid-cols-3 gap-6">
+            <div className="text-center">
+              <div className="text-3xl font-bold text-primary mb-1">
+                {recipeCounts.mine}
+              </div>
+              <div className="text-sm text-muted-foreground">Rezepte</div>
             </div>
-            <div className="text-sm text-muted-foreground">Rezepte</div>
-          </div>
-          <div className="text-center p-4 bg-card rounded-lg border">
-            <div className="text-2xl font-bold text-primary">
-              {recipeCounts.favorites}
+            <div className="text-center">
+              <div className="text-3xl font-bold text-primary mb-1">
+                {recipeCounts.favorites}
+              </div>
+              <div className="text-sm text-muted-foreground">Favoriten</div>
             </div>
-            <div className="text-sm text-muted-foreground">Favoriten</div>
-          </div>
-          <div className="text-center p-4 bg-card rounded-lg border">
-            <div className="text-2xl font-bold text-primary">
-              {Math.floor((recipeCounts.mine || 1) * 2.3)}
+            <div className="text-center">
+              <div className="text-3xl font-bold text-primary mb-1">
+                {Math.floor((recipeCounts.mine || 1) * 2.3)}
+              </div>
+              <div className="text-sm text-muted-foreground">Portionen</div>
             </div>
-            <div className="text-sm text-muted-foreground">Portionen</div>
           </div>
         </div>
       )}
