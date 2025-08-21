@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase'
+import { createServerClient } from '@supabase/ssr'
 
 export async function POST(request: Request) {
   try {
@@ -17,7 +17,17 @@ export async function POST(request: Request) {
     const redirectUrl = 'https://mirolo-app.vercel.app/auth-callback.html'
     console.log('Using redirect URL:', redirectUrl)
     
-    const supabase = createClient()
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          get() { return null },
+          set() {},
+          remove() {},
+        },
+      }
+    )
     
     const { data, error } = await supabase.auth.signInWithOtp({
       email,
