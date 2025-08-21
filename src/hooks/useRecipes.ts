@@ -15,6 +15,8 @@ import {
   getPublicRecipes,
 } from '@/lib/recipes'
 import { RecipeInsert, RecipeUpdate, RecipeFilters, SearchFilters } from '@/types'
+import { useOfflineRecipes } from './useOfflineRecipes'
+import { useAuthContext } from '@/components/providers/auth-provider'
 
 // Query keys
 export const recipeKeys = {
@@ -32,22 +34,71 @@ export const recipeKeys = {
     ['recipes', 'public', filters] as const,
 }
 
-// Get user recipes
+// Get user recipes with offline support
 export const useUserRecipes = (filters?: RecipeFilters & { tab?: 'mine' | 'favorites' | 'recent' }) => {
+  const { user } = useAuthContext()
+  const { offlineRecipes, isOffline, saveRecipeOffline } = useOfflineRecipes(user?.id)
+
   return useQuery({
     queryKey: recipeKeys.user(filters),
-    queryFn: () => getUserRecipes(filters),
+    queryFn: async () => {
+      if (isOffline) {
+        // Return cached recipes when offline
+        return offlineRecipes.filter(recipe => {
+          if (filters?.tab === 'mine') return recipe.user_id === user?.id
+          if (filters?.tab === 'favorites') return recipe.is_favorite && recipe.user_id === user?.id
+          if (filters?.tab === 'recent') return recipe.user_id === user?.id
+          return recipe.user_id === user?.id
+        })
+      }
+
+      // Fetch from network when online
+      const recipes = await getUserRecipes(filters)
+      
+      // Cache recipes for offline use
+      recipes.forEach(recipe => {
+        saveRecipeOffline(recipe).catch(console.error)
+      })
+
+      return recipes
+    },
     staleTime: 5 * 60 * 1000, // 5 minutes
   })
 }
 
-// Get single recipe
+// Get single recipe with offline support
 export const useRecipe = (id: string) => {
+  const { getOfflineRecipeDetails, isOffline, saveRecipeDetailsOffline } = useOfflineRecipes()
+
   return useQuery({
     queryKey: recipeKeys.detail(id),
-    queryFn: () => getRecipeById(id),
+    queryFn: async () => {
+      if (isOffline) {
+        // Try to get from offline cache first
+        const cachedRecipe = await getOfflineRecipeDetails(id)
+        if (cachedRecipe) {
+          return cachedRecipe
+        }
+        throw new Error('Rezept nicht offline verfügbar')
+      }
+
+      // Fetch from network when online
+      const recipe = await getRecipeById(id)
+      
+      // Cache recipe details for offline use
+      if (recipe) {
+        saveRecipeDetailsOffline(recipe).catch(console.error)
+      }
+
+      return recipe
+    },
     enabled: !!id,
     staleTime: 10 * 60 * 1000, // 10 minutes
+    retry: (failureCount, error) => {
+      // Don't retry if offline and recipe not cached
+      if (isOffline) return false
+      return failureCount < 3
+    }
   })
 }
 

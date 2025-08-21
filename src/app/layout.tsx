@@ -3,6 +3,9 @@ import "./globals.css";
 import QueryProvider from '@/components/providers/query-provider'
 import { AuthProvider } from '@/components/providers/auth-provider'
 import AuthGuard from '@/components/layout/auth-guard'
+import ServiceWorkerRegistration from '@/components/pwa/service-worker-registration'
+import InstallPrompt from '@/components/pwa/install-prompt'
+import PerformanceMonitor from '@/components/performance/performance-monitor'
 
 export const metadata: Metadata = {
   title: "Mirolo - Deine intelligente Koch-App",
@@ -47,10 +50,13 @@ export default function RootLayout({
   return (
     <html lang="de" className="h-full">
       <body className="h-full antialiased">
+        <ServiceWorkerRegistration />
         <QueryProvider>
           <AuthProvider>
             <AuthGuard requireAuth={false}>
               {children}
+              <InstallPrompt />
+              <PerformanceMonitor />
             </AuthGuard>
           </AuthProvider>
         </QueryProvider>

@@ -6,9 +6,12 @@ import { useAuthContext } from '@/components/providers/auth-provider'
 import { useUserRecipes } from '@/hooks/useRecipes'
 import { LoadingCard } from '@/components/ui/loading'
 import { Button } from '@/components/ui/button'
-import { Plus, Search, Filter } from 'lucide-react'
+import { Plus, Search, Filter, RefreshCw } from 'lucide-react'
 import Link from 'next/link'
 import { RECIPE_TABS } from '@/lib/constants'
+import { useTabSwipeNavigation, usePullToRefresh } from '@/hooks/useSwipeGestures'
+import { useQueryClient } from '@tanstack/react-query'
+import { recipeKeys } from '@/hooks/useRecipes'
 
 type TabType = 'mine' | 'favorites' | 'recent'
 
@@ -21,9 +24,23 @@ const tabs = [
 export default function DashboardPage() {
   const [activeTab, setActiveTab] = useState<TabType>('mine')
   const { user } = useAuthContext()
+  const queryClient = useQueryClient()
   
-  const { data: recipes, isLoading, error } = useUserRecipes({ 
+  const { data: recipes, isLoading, error, refetch } = useUserRecipes({ 
     tab: activeTab 
+  })
+
+  // Tab swipe navigation
+  const tabSwipe = useTabSwipeNavigation({
+    tabs: tabs.map(t => t.key),
+    currentTab: activeTab,
+    onTabChange: (tab) => setActiveTab(tab as TabType)
+  })
+
+  // Pull to refresh
+  const pullToRefresh = usePullToRefresh(async () => {
+    await refetch()
+    queryClient.invalidateQueries({ queryKey: recipeKeys.all })
   })
 
   const recipeCounts = {
@@ -55,6 +72,32 @@ export default function DashboardPage() {
         )
       }}
     >
+      {/* Pull to refresh indicator */}
+      {pullToRefresh.isPulling && (
+        <div 
+          className="fixed top-16 left-0 right-0 z-40 flex justify-center"
+          style={{
+            transform: `translateY(${Math.min(pullToRefresh.pullDistance, 60)}px)`,
+            opacity: pullToRefresh.pullProgress
+          }}
+        >
+          <div className="bg-card border border-border rounded-full p-2 shadow-lg">
+            <RefreshCw 
+              size={16} 
+              className={`text-primary ${pullToRefresh.isRefreshing ? 'animate-spin' : ''}`}
+              style={{
+                transform: `rotate(${pullToRefresh.pullProgress * 180}deg)`
+              }}
+            />
+          </div>
+        </div>
+      )}
+
+      <div 
+        className="touch-pan-y"
+        {...pullToRefresh.listeners}
+        {...tabSwipe.listeners}
+      >
       {/* Welcome Header */}
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-foreground mb-1">
@@ -216,6 +259,7 @@ export default function DashboardPage() {
             ))}
           </div>
         )}
+      </div>
       </div>
     </MainLayout>
   )

@@ -88,6 +88,68 @@ body {
   max-width: 24rem; /* 384px */
 }
 
+/* Touch and swipe animations */
+.touch-pan-y {
+  touch-action: pan-y;
+  overscroll-behavior: contain;
+}
+
+.swipe-transition {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.pull-to-refresh-indicator {
+  transform-origin: center;
+  transition: all 0.2s ease-out;
+}
+
+/* Recipe card touch feedback */
+.recipe-card {
+  transition: transform 0.1s ease-out, box-shadow 0.1s ease-out;
+  touch-action: manipulation;
+}
+
+.recipe-card:active {
+  transform: scale(0.98);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Tab swipe indicator */
+.tab-swipe-indicator {
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  height: 2px;
+  background: var(--primary);
+  border-radius: 1px;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Smooth scroll for mobile */
+html {
+  scroll-behavior: smooth;
+  overscroll-behavior: contain;
+}
+
+/* iOS safe area support */
+@supports (padding: max(0px)) {
+  .safe-top {
+    padding-top: max(1rem, env(safe-area-inset-top));
+  }
+  
+  .safe-bottom {
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+  
+  .safe-left {
+    padding-left: max(1rem, env(safe-area-inset-left));
+  }
+  
+  .safe-right {
+    padding-right: max(1rem, env(safe-area-inset-right));
+  }
+}
+
 @media (min-width: 640px) {
   .container-mobile {
     max-width: 28rem; /* 448px */
