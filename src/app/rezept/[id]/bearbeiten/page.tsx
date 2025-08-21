@@ -109,7 +109,7 @@ export default function EditRecipePage(props: EditRecipePageProps) {
       </div>
 
       <RecipeForm
-        initialRecipe={recipe}
+        initialRecipe={recipe as any}
         onSave={handleSave}
       />
     </MainLayout>
