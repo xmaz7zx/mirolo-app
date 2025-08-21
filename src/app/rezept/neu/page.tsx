@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import MainLayout from '@/components/layout/main-layout'
-import AIRecipeWizard from '@/components/recipe/ai-recipe-wizard'
+import FastAIRecipeWizard from '@/components/recipe/fast-ai-recipe-wizard'
 import MobileRecipeForm from '@/components/recipe/mobile-recipe-form'
 import { Button } from '@/components/ui/button'
 import { Sparkles, Edit3, ArrowLeft } from 'lucide-react'
@@ -142,7 +142,7 @@ export default function NewRecipePage() {
       )}
 
       {mode === 'ai' && (
-        <AIRecipeWizard 
+        <FastAIRecipeWizard 
           onRecipeGenerated={handleRecipeGenerated} 
           onCancel={() => setMode('choose')}
         />

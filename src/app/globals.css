@@ -103,15 +103,56 @@ body {
   transition: all 0.2s ease-out;
 }
 
+/* Touch targets - minimum 44px for accessibility */
+.touch-manipulation {
+  touch-action: manipulation;
+  min-height: 44px;
+  min-width: 44px;
+}
+
 /* Recipe card touch feedback */
 .recipe-card {
-  transition: transform 0.1s ease-out, box-shadow 0.1s ease-out;
+  transition: transform 0.15s ease-out, box-shadow 0.15s ease-out;
   touch-action: manipulation;
+  cursor: pointer;
+}
+
+.recipe-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
 }
 
 .recipe-card:active {
   transform: scale(0.98);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Button improvements for mobile */
+button, .btn, [role="button"] {
+  touch-action: manipulation;
+  min-height: 44px;
+  user-select: none;
+}
+
+/* Larger tap targets for small interactive elements */
+input, select, textarea {
+  min-height: 44px;
+  font-size: 16px; /* Prevents zoom on iOS */
+}
+
+/* Form improvements */
+input[type="number"] {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* Improved focus indicators for touch */
+button:focus-visible, 
+input:focus-visible, 
+select:focus-visible, 
+textarea:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
 }
 
 /* Tab swipe indicator */

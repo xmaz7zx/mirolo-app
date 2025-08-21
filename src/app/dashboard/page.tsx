@@ -6,7 +6,7 @@ import { useAuthContext } from '@/components/providers/auth-provider'
 import { useUserRecipes } from '@/hooks/useRecipes'
 import { LoadingCard } from '@/components/ui/loading'
 import { Button } from '@/components/ui/button'
-import { Plus, Search, Filter, RefreshCw } from 'lucide-react'
+import { Plus, Search, Filter, RefreshCw, Clock, Users, ChefHat } from 'lucide-react'
 import Link from 'next/link'
 import { RECIPE_TABS } from '@/lib/constants'
 import { useTabSwipeNavigation, usePullToRefresh } from '@/hooks/useSwipeGestures'
@@ -119,10 +119,10 @@ export default function DashboardPage() {
         
         <Link href="/rezept/neu?ai=true">
           <Button variant="outline" className="w-full h-16 text-lg touch-manipulation">
-            <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center mr-3">
-              <span className="text-primary-foreground text-sm font-bold">KI</span>
+            <div className="w-8 h-8 bg-gradient-to-r from-primary to-primary/70 rounded-full flex items-center justify-center mr-3">
+              <span className="text-primary-foreground text-sm font-bold">⚡</span>
             </div>
-            <span>Mit KI erstellen</span>
+            <span>Schnell mit KI erstellen</span>
           </Button>
         </Link>
       </div>
@@ -153,24 +153,26 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {/* Tabs */}
+      {/* Tabs - Touch-optimiert */}
       <div className="flex space-x-1 mb-6 bg-muted p-1 rounded-lg">
         {tabs.map((tab) => (
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
-            className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-colors ${
+            className={`flex-1 py-4 px-4 rounded-md text-sm font-medium transition-colors touch-manipulation ${
               activeTab === tab.key
                 ? 'bg-card text-foreground shadow-sm'
                 : 'text-muted-foreground hover:text-foreground'
             }`}
           >
-            {tab.label}
-            {recipeCounts[tab.key] > 0 && (
-              <span className="ml-2 text-xs bg-primary/20 text-primary px-1.5 py-0.5 rounded-full">
-                {recipeCounts[tab.key]}
-              </span>
-            )}
+            <div className="text-center">
+              <div>{tab.label}</div>
+              {recipeCounts[tab.key] > 0 && (
+                <div className="text-xs bg-primary/20 text-primary px-2 py-1 rounded-full mt-1 inline-block">
+                  {recipeCounts[tab.key]}
+                </div>
+              )}
+            </div>
           </button>
         ))}
       </div>
@@ -225,39 +227,50 @@ export default function DashboardPage() {
             </div>
           </div>
         ) : (
-          <div className="grid gap-4">
+          <div className="space-y-4">
             {recipes.map((recipe) => (
-              <div key={recipe.id} className="recipe-card">
-                <div className="aspect-video bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center">
-                  <span className="text-4xl">🍳</span>
-                </div>
-                <div className="p-4">
-                  <h3 className="font-semibold text-foreground mb-2 line-clamp-1">
-                    {recipe.title}
-                  </h3>
-                  {recipe.summary && (
-                    <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
-                      {recipe.summary}
-                    </p>
-                  )}
-                  <div className="flex items-center justify-between text-xs text-muted-foreground">
-                    <div className="flex items-center gap-3">
-                      {recipe.total_minutes && (
-                        <span>{recipe.total_minutes} Min</span>
-                      )}
-                      {recipe.servings && (
-                        <span>{recipe.servings} Portionen</span>
-                      )}
-                      {recipe.difficulty && (
-                        <span className="capitalize">{recipe.difficulty}</span>
-                      )}
-                    </div>
+              <Link key={recipe.id} href={`/rezept/${recipe.id}`}>
+                <div className="recipe-card bg-card border border-border rounded-xl overflow-hidden touch-manipulation">
+                  <div className="aspect-video bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center relative">
+                    <span className="text-5xl">🍳</span>
                     {recipe.is_favorite && (
-                      <span className="text-red-500">♥</span>
+                      <div className="absolute top-3 right-3 w-8 h-8 bg-red-500 rounded-full flex items-center justify-center">
+                        <span className="text-white">♥</span>
+                      </div>
                     )}
                   </div>
+                  <div className="p-5">
+                    <h3 className="font-bold text-lg text-foreground mb-2 line-clamp-1">
+                      {recipe.title}
+                    </h3>
+                    {recipe.summary && (
+                      <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
+                        {recipe.summary}
+                      </p>
+                    )}
+                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                      {recipe.total_minutes && (
+                        <div className="flex items-center gap-1">
+                          <Clock size={14} />
+                          <span>{recipe.total_minutes} Min</span>
+                        </div>
+                      )}
+                      {recipe.servings && (
+                        <div className="flex items-center gap-1">
+                          <Users size={14} />
+                          <span>{recipe.servings}</span>
+                        </div>
+                      )}
+                      {recipe.difficulty && (
+                        <div className="flex items-center gap-1">
+                          <ChefHat size={14} />
+                          <span className="capitalize">{recipe.difficulty}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         )}
