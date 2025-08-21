@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabase'
+import { createClient } from '@/lib/createClient()'
 import { Recipe, RecipeInsert, RecipeUpdate, RecipeWithDetails, RecipeFilters } from '@/types'
 
 export class RecipeError extends Error {
@@ -10,12 +10,12 @@ export class RecipeError extends Error {
 
 // Create new recipe
 export const createRecipe = async (recipe: RecipeInsert): Promise<Recipe> => {
-  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  const { data: { user }, error: authError } = await createClient().auth.getUser()
   if (authError || !user) {
     throw new RecipeError('Authentication required')
   }
 
-  const { data, error } = await supabase
+  const { data, error } = await createClient()
     .from('recipes')
     .insert({
       ...recipe,
@@ -33,7 +33,7 @@ export const createRecipe = async (recipe: RecipeInsert): Promise<Recipe> => {
 
 // Get recipe by ID with all details
 export const getRecipeById = async (id: string): Promise<RecipeWithDetails | null> => {
-  const { data: recipe, error: recipeError } = await supabase
+  const { data: recipe, error: recipeError } = await createClient()
     .from('recipes')
     .select(`
       *,
@@ -51,14 +51,14 @@ export const getRecipeById = async (id: string): Promise<RecipeWithDetails | nul
   }
 
   // Get photos
-  const { data: photos } = await supabase
+  const { data: photos } = await createClient()
     .from('recipe_photos')
     .select('*')
     .eq('recipe_id', id)
     .order('uploaded_at', { ascending: false })
 
   // Get tags
-  const { data: recipeTags } = await supabase
+  const { data: recipeTags } = await createClient()
     .from('recipe_tags')
     .select(`
       tags (
@@ -85,12 +85,12 @@ export const getRecipeById = async (id: string): Promise<RecipeWithDetails | nul
 export const getUserRecipes = async (
   filters?: RecipeFilters & { tab?: 'mine' | 'favorites' | 'recent' }
 ): Promise<Recipe[]> => {
-  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  const { data: { user }, error: authError } = await createClient().auth.getUser()
   if (authError || !user) {
     throw new RecipeError('Authentication required')
   }
 
-  let query = supabase.from('recipes').select('*')
+  let query = createClient().from('recipes').select('*')
 
   // Apply tab filter
   if (filters?.tab === 'mine') {
@@ -132,7 +132,7 @@ export const searchPublicRecipes = async (
   searchTerm: string = '',
   filters?: RecipeFilters
 ): Promise<Recipe[]> => {
-  let query = supabase
+  let query = createClient()
     .from('recipes')
     .select('*')
     .eq('is_public', true)
@@ -168,13 +168,13 @@ export const searchPublicRecipes = async (
 
 // Update recipe
 export const updateRecipe = async (id: string, updates: RecipeUpdate): Promise<Recipe> => {
-  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  const { data: { user }, error: authError } = await createClient().auth.getUser()
   if (authError || !user) {
     throw new RecipeError('Authentication required')
   }
 
   // Create new version before updating
-  const { data: originalRecipe } = await supabase
+  const { data: originalRecipe } = await createClient()
     .from('recipes')
     .select('*')
     .eq('id', id)
@@ -182,7 +182,7 @@ export const updateRecipe = async (id: string, updates: RecipeUpdate): Promise<R
     .single()
 
   if (originalRecipe) {
-    const { data: versions } = await supabase
+    const { data: versions } = await createClient()
       .from('recipe_versions')
       .select('version_number')
       .eq('recipe_id', id)
@@ -191,7 +191,7 @@ export const updateRecipe = async (id: string, updates: RecipeUpdate): Promise<R
 
     const nextVersion = versions?.[0]?.version_number ? versions[0].version_number + 1 : 1
 
-    await supabase
+    await createClient()
       .from('recipe_versions')
       .insert({
         recipe_id: id,
@@ -202,7 +202,7 @@ export const updateRecipe = async (id: string, updates: RecipeUpdate): Promise<R
   }
 
   // Update recipe
-  const { data, error } = await supabase
+  const { data, error } = await createClient()
     .from('recipes')
     .update(updates)
     .eq('id', id)
@@ -219,12 +219,12 @@ export const updateRecipe = async (id: string, updates: RecipeUpdate): Promise<R
 
 // Toggle favorite
 export const toggleRecipeFavorite = async (id: string): Promise<boolean> => {
-  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  const { data: { user }, error: authError } = await createClient().auth.getUser()
   if (authError || !user) {
     throw new RecipeError('Authentication required')
   }
 
-  const { data: recipe } = await supabase
+  const { data: recipe } = await createClient()
     .from('recipes')
     .select('is_favorite')
     .eq('id', id)
@@ -237,7 +237,7 @@ export const toggleRecipeFavorite = async (id: string): Promise<boolean> => {
 
   const newFavoriteStatus = !recipe.is_favorite
 
-  const { error } = await supabase
+  const { error } = await createClient()
     .from('recipes')
     .update({ is_favorite: newFavoriteStatus })
     .eq('id', id)
@@ -252,12 +252,12 @@ export const toggleRecipeFavorite = async (id: string): Promise<boolean> => {
 
 // Delete recipe
 export const deleteRecipe = async (id: string): Promise<void> => {
-  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  const { data: { user }, error: authError } = await createClient().auth.getUser()
   if (authError || !user) {
     throw new RecipeError('Authentication required')
   }
 
-  const { error } = await supabase
+  const { error } = await createClient()
     .from('recipes')
     .delete()
     .eq('id', id)
@@ -270,12 +270,12 @@ export const deleteRecipe = async (id: string): Promise<void> => {
 
 // Get recipe versions
 export const getRecipeVersions = async (recipeId: string) => {
-  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  const { data: { user }, error: authError } = await createClient().auth.getUser()
   if (authError || !user) {
     throw new RecipeError('Authentication required')
   }
 
-  const { data, error } = await supabase
+  const { data, error } = await createClient()
     .from('recipe_versions')
     .select('*')
     .eq('recipe_id', recipeId)
@@ -295,7 +295,7 @@ export const duplicateRecipe = async (id: string, newTitle?: string): Promise<Re
     throw new RecipeError('Recipe not found')
   }
 
-  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  const { data: { user }, error: authError } = await createClient().auth.getUser()
   if (authError || !user) {
     throw new RecipeError('Authentication required')
   }
@@ -321,7 +321,7 @@ export const duplicateRecipe = async (id: string, newTitle?: string): Promise<Re
 
 // Get featured recipes
 export const getFeaturedRecipes = async (): Promise<Recipe[]> => {
-  const { data, error } = await supabase
+  const { data, error } = await createClient()
     .from('recipes')
     .select('*')
     .eq('is_public', true)
@@ -338,7 +338,7 @@ export const getFeaturedRecipes = async (): Promise<Recipe[]> => {
 
 // Get trending recipes (based on recent activity)
 export const getTrendingRecipes = async (): Promise<Recipe[]> => {
-  const { data, error } = await supabase
+  const { data, error } = await createClient()
     .from('recipes')
     .select('*')
     .eq('is_public', true)
@@ -357,7 +357,7 @@ export const getTrendingRecipes = async (): Promise<Recipe[]> => {
 export const getPublicRecipes = async (options?: { 
   category?: string 
 }): Promise<Recipe[]> => {
-  let query = supabase
+  let query = createClient()
     .from('recipes')
     .select('*')
     .eq('is_public', true)

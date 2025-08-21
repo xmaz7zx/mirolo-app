@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabase'
+import { createClient } from '@/lib/createClient()'
 import type { PhotoType } from '@/types'
 
 export class PhotoError extends Error {
@@ -25,7 +25,7 @@ export const uploadRecipePhoto = async (
   photo_url: string
   photo_type: PhotoType
 }> => {
-  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  const { data: { user }, error: authError } = await createClient().auth.getUser()
   if (authError || !user) {
     throw new PhotoError('Authentication required')
   }
@@ -35,7 +35,7 @@ export const uploadRecipePhoto = async (
   
   try {
     // Upload file to Supabase Storage
-    const { data: uploadData, error: uploadError } = await supabase.storage
+    const { data: uploadData, error: uploadError } = await createClient().storage
       .from('recipe-photos')
       .upload(fileName, file, {
         cacheControl: '3600',
@@ -47,12 +47,12 @@ export const uploadRecipePhoto = async (
     }
 
     // Get public URL
-    const { data: { publicUrl } } = supabase.storage
+    const { data: { publicUrl } } = createClient().storage
       .from('recipe-photos')
       .getPublicUrl(fileName)
 
     // Save photo record to database
-    const { data: photoRecord, error: dbError } = await supabase
+    const { data: photoRecord, error: dbError } = await createClient()
       .from('recipe_photos')
       .insert({
         recipe_id: recipeId,
@@ -68,7 +68,7 @@ export const uploadRecipePhoto = async (
 
     if (dbError) {
       // Clean up storage if database insert fails
-      await supabase.storage
+      await createClient().storage
         .from('recipe-photos')
         .remove([fileName])
       
@@ -90,13 +90,13 @@ export const uploadRecipePhoto = async (
 
 // Delete recipe photo
 export const deleteRecipePhoto = async (photoId: string): Promise<void> => {
-  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  const { data: { user }, error: authError } = await createClient().auth.getUser()
   if (authError || !user) {
     throw new PhotoError('Authentication required')
   }
 
   // Get photo record to get storage path
-  const { data: photo, error: fetchError } = await supabase
+  const { data: photo, error: fetchError } = await createClient()
     .from('recipe_photos')
     .select('*')
     .eq('id', photoId)
@@ -107,7 +107,7 @@ export const deleteRecipePhoto = async (photoId: string): Promise<void> => {
   }
 
   // Check ownership via recipe
-  const { data: recipe, error: recipeError } = await supabase
+  const { data: recipe, error: recipeError } = await createClient()
     .from('recipes')
     .select('user_id')
     .eq('id', photo.recipe_id)
@@ -119,7 +119,7 @@ export const deleteRecipePhoto = async (photoId: string): Promise<void> => {
 
   try {
     // Delete from storage
-    const { error: storageError } = await supabase.storage
+    const { error: storageError } = await createClient().storage
       .from('recipe-photos')
       .remove([photo.storage_path])
 
@@ -128,7 +128,7 @@ export const deleteRecipePhoto = async (photoId: string): Promise<void> => {
     }
 
     // Delete from database
-    const { error: dbError } = await supabase
+    const { error: dbError } = await createClient()
       .from('recipe_photos')
       .delete()
       .eq('id', photoId)
@@ -146,7 +146,7 @@ export const deleteRecipePhoto = async (photoId: string): Promise<void> => {
 
 // Get recipe photos
 export const getRecipePhotos = async (recipeId: string) => {
-  const { data, error } = await supabase
+  const { data, error } = await createClient()
     .from('recipe_photos')
     .select('*')
     .eq('recipe_id', recipeId)
@@ -161,12 +161,12 @@ export const getRecipePhotos = async (recipeId: string) => {
 
 // Update photo order/metadata
 export const updatePhotoOrder = async (photoId: string, newOrder: number): Promise<void> => {
-  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  const { data: { user }, error: authError } = await createClient().auth.getUser()
   if (authError || !user) {
     throw new PhotoError('Authentication required')
   }
 
-  const { error } = await supabase
+  const { error } = await createClient()
     .from('recipe_photos')
     .update({ photo_order: newOrder })
     .eq('id', photoId)
@@ -178,13 +178,13 @@ export const updatePhotoOrder = async (photoId: string, newOrder: number): Promi
 
 // Set main photo
 export const setMainPhoto = async (recipeId: string, photoId: string): Promise<void> => {
-  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  const { data: { user }, error: authError } = await createClient().auth.getUser()
   if (authError || !user) {
     throw new PhotoError('Authentication required')
   }
 
   // Check recipe ownership
-  const { data: recipe, error: recipeError } = await supabase
+  const { data: recipe, error: recipeError } = await createClient()
     .from('recipes')
     .select('user_id')
     .eq('id', recipeId)
@@ -196,14 +196,14 @@ export const setMainPhoto = async (recipeId: string, photoId: string): Promise<v
 
   try {
     // First, set all photos to not-main
-    await supabase
+    await createClient()
       .from('recipe_photos')
       .update({ photo_type: 'result' })
       .eq('recipe_id', recipeId)
       .eq('photo_type', 'main')
 
     // Then set the selected photo as main
-    const { error } = await supabase
+    const { error } = await createClient()
       .from('recipe_photos')
       .update({ photo_type: 'main' })
       .eq('id', photoId)
@@ -226,12 +226,12 @@ export const getUserStorageUsage = async (): Promise<{
   limit: number
   photos: number
 }> => {
-  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  const { data: { user }, error: authError } = await createClient().auth.getUser()
   if (authError || !user) {
     throw new PhotoError('Authentication required')
   }
 
-  const { data: photos, error } = await supabase
+  const { data: photos, error } = await createClient()
     .from('recipe_photos')
     .select('file_size')
     .eq('uploaded_by', user.id)

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { User } from '@supabase/supabase-js'
-import { supabase } from '@/lib/supabase'
+import { createClient } from '@/lib/supabase'
 import { Profile } from '@/types'
 
 export interface AuthUser extends User {
@@ -17,7 +17,7 @@ export const useAuth = () => {
     // Get initial session
     const getInitialSession = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession()
+        const { data: { session } } = await createClient().auth.getSession()
         
         if (session?.user) {
           const userWithProfile = await getUserWithProfile(session.user)
@@ -36,7 +36,7 @@ export const useAuth = () => {
     getInitialSession()
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+    const { data: { subscription } } = createClient().auth.onAuthStateChange(
       async (event, session) => {
         if (session?.user) {
           const userWithProfile = await getUserWithProfile(session.user)
@@ -53,7 +53,7 @@ export const useAuth = () => {
 
   const getUserWithProfile = async (user: User): Promise<AuthUser> => {
     try {
-      const { data: profile } = await supabase
+      const { data: profile } = await createClient()
         .from('profiles')
         .select('*')
         .eq('id', user.id)
@@ -70,7 +70,7 @@ export const useAuth = () => {
   }
 
   const signInWithEmail = async (email: string) => {
-    const { data, error } = await supabase.auth.signInWithOtp({
+    const { data, error } = await createClient().auth.signInWithOtp({
       email,
       options: {
         emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`,
@@ -82,7 +82,7 @@ export const useAuth = () => {
   }
 
   const signUp = async (email: string, displayName?: string) => {
-    const { data, error } = await supabase.auth.signUp({
+    const { data, error } = await createClient().auth.signUp({
       email,
       password: Math.random().toString(36), // Temporary password for OTP signup
       options: {
@@ -98,14 +98,14 @@ export const useAuth = () => {
   }
 
   const signOut = async () => {
-    const { error } = await supabase.auth.signOut()
+    const { error } = await createClient().auth.signOut()
     if (error) throw error
   }
 
   const updateProfile = async (updates: Partial<Profile>) => {
     if (!user) throw new Error('Not authenticated')
 
-    const { data, error } = await supabase
+    const { data, error } = await createClient()
       .from('profiles')
       .update(updates)
       .eq('id', user.id)

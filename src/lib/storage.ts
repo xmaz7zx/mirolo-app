@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabase'
+import { createClient } from '@/lib/supabase'
 import { SUPPORTED_IMAGE_TYPES, LIMITS } from '@/lib/constants'
 
 export class StorageError extends Error {
@@ -24,7 +24,7 @@ export const uploadRecipePhoto = async (
   }
 
   // Get current user
-  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  const { data: { user }, error: authError } = await createClient().auth.getUser()
   if (authError || !user) {
     throw new StorageError('Authentication required')
   }
@@ -37,7 +37,7 @@ export const uploadRecipePhoto = async (
   const filePath = `${user.id}/${fileName}`
 
   // Upload to Supabase Storage
-  const { error: uploadError } = await supabase.storage
+  const { error: uploadError } = await createClient().storage
     .from('recipe-photos')
     .upload(filePath, file, {
       cacheControl: '3600',
@@ -49,12 +49,12 @@ export const uploadRecipePhoto = async (
   }
 
   // Get public URL
-  const { data: { publicUrl } } = supabase.storage
+  const { data: { publicUrl } } = createClient().storage
     .from('recipe-photos')
     .getPublicUrl(filePath)
 
   // Save photo record to database
-  const { error: dbError } = await supabase
+  const { error: dbError } = await createClient()
     .from('recipe_photos')
     .insert({
       recipe_id: recipeId,
@@ -65,7 +65,7 @@ export const uploadRecipePhoto = async (
 
   if (dbError) {
     // Cleanup uploaded file if database insert fails
-    await supabase.storage
+    await createClient().storage
       .from('recipe-photos')
       .remove([filePath])
     
@@ -82,7 +82,7 @@ export const deleteRecipePhoto = async (photoUrl: string): Promise<void> => {
   const filePath = pathParts.slice(pathParts.indexOf('recipe-photos') + 1).join('/')
 
   // Delete from storage
-  const { error: storageError } = await supabase.storage
+  const { error: storageError } = await createClient().storage
     .from('recipe-photos')
     .remove([filePath])
 
@@ -91,7 +91,7 @@ export const deleteRecipePhoto = async (photoUrl: string): Promise<void> => {
   }
 
   // Delete from database
-  const { error: dbError } = await supabase
+  const { error: dbError } = await createClient()
     .from('recipe_photos')
     .delete()
     .eq('photo_url', photoUrl)
@@ -102,7 +102,7 @@ export const deleteRecipePhoto = async (photoUrl: string): Promise<void> => {
 }
 
 export const getRecipePhotos = async (recipeId: string) => {
-  const { data, error } = await supabase
+  const { data, error } = await createClient()
     .from('recipe_photos')
     .select('*')
     .eq('recipe_id', recipeId)
