@@ -25,6 +25,7 @@ import type { RecipePhoto } from '@/types'
 interface PhotoWithRecipe extends RecipePhoto {
   recipe_title?: string
   file_name?: string | null
+  file_size?: number | null
 }
 
 export default function PhotosPage() {
@@ -325,8 +326,7 @@ export default function PhotosPage() {
                         </span>
                       </div>
                       <div className="text-sm text-muted-foreground">
-                        {photo.file_size && formatFileSize(photo.file_size)}
-                        <span className="ml-2">
+                        <span>
                           {new Date(photo.uploaded_at).toLocaleDateString('de-DE')}
                         </span>
                       </div>
