@@ -77,6 +77,7 @@
         </a>
     </div>
 
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script>
         async function handleAuth() {
             const statusEl = document.getElementById('status');
@@ -98,10 +99,17 @@
                 const supabaseUrl = 'https://dncyzszjcfofifmefsmf.supabase.co';
                 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRuY3l6c3pqY2ZvZmlmbWVmc21mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU2Nzk2MTgsImV4cCI6MjA3MTI1NTYxOH0.G25p9fFYkuJxQNBfF8ibqwIW832gBQwxs2nyk8ldnkk';
 
-                // Redirect to Next.js callback that handles the session creation
-                const callbackUrl = `/auth/callback?code=${encodeURIComponent(code)}`;
-                console.log('Redirecting to Next.js callback:', callbackUrl);
-                window.location.href = callbackUrl;
+                // Create Supabase client and handle session directly
+                const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+                
+                console.log('Exchanging code for session...');
+                const { data: session, error: sessionError } = await supabase.auth.exchangeCodeForSession(code);
+                
+                if (sessionError) {
+                    throw new Error(`Session creation failed: ${sessionError.message}`);
+                }
+                
+                console.log('Session created successfully');
 
                 statusEl.innerHTML = '<div class="success">✅ Erfolgreich angemeldet!</div>';
                 detailsEl.innerHTML = '<p>Du wirst weitergeleitet...</p>';
